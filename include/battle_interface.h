@@ -63,6 +63,7 @@ enum
 #define TAG_ZMOVE_TRIGGER_PAL           0xD77B
 #define TAG_BURST_TRIGGER_PAL           0xD77C
 #define TAG_DYNAMAX_TRIGGER_PAL         0xD77D
+#define TAG_SHINY_INDICATOR_TILE         0xD77F
 
 enum
 {
@@ -120,5 +121,6 @@ void TryAddLastUsedBallItemSprites(void);
 void SwapBallToDisplay(bool32 sameBall);
 void ArrowsChangeColorLastBallCycle(bool32 showArrows);
 void UpdateAbilityPopup(u8 battlerId);
+bool32 IsBattlerShiny(u16 battlerId);
 
 #endif // GUARD_BATTLE_INTERFACE_H
