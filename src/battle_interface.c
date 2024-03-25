@@ -1033,8 +1033,7 @@ void InitBattlerHealthboxCoords(u8 battler)
     UpdateSpritePos(gHealthboxSpriteIds[battler], x, y);
 }
 
-// isShiny is sent by the healthbox function because the battler struct seemed to not update properly
-static void UpdateLvlInHealthbox(u8 healthboxSpriteId, u8 lvl, bool32 isShiny)
+static void UpdateLvlInHealthbox(u8 healthboxSpriteId, u8 lvl)
 {
     u32 windowId, spriteTileNum;
     u8 *windowTileData;
@@ -1044,7 +1043,7 @@ static void UpdateLvlInHealthbox(u8 healthboxSpriteId, u8 lvl, bool32 isShiny)
     u8 battler = gSprites[healthboxSpriteId].hMain_Battler;
 
     // Don't print Lv char if mon is mega evolved or primal reverted or Dynamaxed.
-   if (IsBattlerMegaEvolved(battler) || IsBattlerPrimalReverted(battler) || IsDynamaxed(battler) || isShiny == TRUE)
+    if (IsBattlerMegaEvolved(battler) || IsBattlerPrimalReverted(battler) || IsDynamaxed(battler))
     {
         objVram = ConvertIntToDecimalStringN(text, lvl, STR_CONV_MODE_LEFT_ALIGN, 3);
         xPos = 5 * (3 - (objVram - (text + 2))) - 1;
@@ -1636,7 +1635,6 @@ enum
     INDICATOR_ALPHA,
     INDICATOR_OMEGA,
     INDICATOR_DYNAMAX,
-    INDICATOR_SHINY,
     INDICATOR_COUNT,
 };
 
@@ -1647,9 +1645,6 @@ static const u8 ALIGNED(4) sOmegaIndicatorGfx[] = INCBIN_U8("graphics/battle_int
 static const u16 sAlphaOmegaIndicatorPal[] = INCBIN_U16("graphics/battle_interface/misc_indicator.gbapal");
 static const u8 ALIGNED(4) sDynamaxIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/dynamax_indicator.4bpp");
 static const u16 sDynamaxIndicatorPal[] = INCBIN_U16("graphics/battle_interface/misc_indicator.gbapal");
-static const u8 ALIGNED(4) sShinyIndicatorGfx[] = INCBIN_U8("graphics/battle_interface/shiny_indicator.4bpp");
-static const u16 sShinyIndicatorPal[] = INCBIN_U16("graphics/battle_interface/misc_indicator.gbapal");
-
 
 static const struct SpriteSheet sMegaIndicator_SpriteSheets[] =
 {
@@ -1657,7 +1652,6 @@ static const struct SpriteSheet sMegaIndicator_SpriteSheets[] =
     [INDICATOR_ALPHA] = {sAlphaIndicatorGfx, sizeof(sAlphaIndicatorGfx), TAG_ALPHA_INDICATOR_TILE},
     [INDICATOR_OMEGA] = {sOmegaIndicatorGfx, sizeof(sOmegaIndicatorGfx), TAG_OMEGA_INDICATOR_TILE},
     [INDICATOR_DYNAMAX] = {sDynamaxIndicatorGfx, sizeof(sDynamaxIndicatorGfx), TAG_DYNAMAX_INDICATOR_TILE},
-    [INDICATOR_SHINY] = {sShinyIndicatorGfx, sizeof(sShinyIndicatorGfx), TAG_SHINY_INDICATOR_TILE},
     [INDICATOR_COUNT] = {0}
 };
 static const struct SpritePalette sMegaIndicator_SpritePalettes[] =
@@ -1666,7 +1660,6 @@ static const struct SpritePalette sMegaIndicator_SpritePalettes[] =
     [INDICATOR_ALPHA] = {sAlphaOmegaIndicatorPal, TAG_MISC_INDICATOR_PAL},
     [INDICATOR_OMEGA] = {sAlphaOmegaIndicatorPal, TAG_MISC_INDICATOR_PAL},
     [INDICATOR_DYNAMAX] = {sDynamaxIndicatorPal, TAG_MISC_INDICATOR_PAL},
-    [INDICATOR_SHINY] = {sShinyIndicatorPal, TAG_MISC_INDICATOR_PAL},
     [INDICATOR_COUNT] = {0}
 };
 
@@ -1694,7 +1687,6 @@ static const u16 sMegaIndicatorTags[][2] =
     [INDICATOR_ALPHA] = {TAG_ALPHA_INDICATOR_TILE, TAG_MISC_INDICATOR_PAL},
     [INDICATOR_OMEGA] = {TAG_OMEGA_INDICATOR_TILE, TAG_MISC_INDICATOR_PAL},
     [INDICATOR_DYNAMAX] = {TAG_DYNAMAX_INDICATOR_TILE, TAG_MISC_INDICATOR_PAL},
-    [INDICATOR_SHINY] = {TAG_SHINY_INDICATOR_TILE, TAG_MISC_INDICATOR_PAL},
 };
 
 static const s8 sIndicatorPositions[][2] =
@@ -1703,12 +1695,6 @@ static const s8 sIndicatorPositions[][2] =
     [B_POSITION_OPPONENT_LEFT] = {44, -9},
     [B_POSITION_PLAYER_RIGHT] = {52, -9},
     [B_POSITION_OPPONENT_RIGHT] = {44, -9},
-/*  Next to Lv
-    [B_POSITION_PLAYER_LEFT] = {45, -9},
-    [B_POSITION_OPPONENT_LEFT] = {37, -9},
-    [B_POSITION_PLAYER_RIGHT] = {45, -9},
-    [B_POSITION_OPPONENT_RIGHT] = {37, -9},
-*/
 };
 
 // for sprite data fields
@@ -1723,25 +1709,14 @@ void MegaIndicator_LoadSpritesGfx(void)
     LoadSpritePalettes(sMegaIndicator_SpritePalettes);
 }
 
-bool32 IsBattlerShiny(u16 battlerId)
-{
-    struct Pokemon *mon;
-    mon = &GetBattlerParty(battlerId)[gBattlerPartyIndexes[battlerId]];
-    // The BattlePokemon's isShiny bool wasn't working but still kept it just incase (Didn't bother to look how it works)
-    if (gBattleMons[battlerId].isShiny == TRUE || GetMonData(mon, MON_DATA_IS_SHINY) == TRUE)
-        return TRUE;
-    return FALSE;
-}
-
 static bool32 MegaIndicator_ShouldBeInvisible(u32 battlerId, struct Sprite *sprite)
 {
     bool32 megaEvolved = IsBattlerMegaEvolved(battlerId);
     bool32 primalReverted = IsBattlerPrimalReverted(battlerId);
     bool32 dynamaxed = IsDynamaxed(battlerId);
-    bool32 isShiny = IsBattlerShiny(battlerId);
 
-    if (!megaEvolved && !primalReverted && !dynamaxed && !isShiny)
-      return TRUE;
+    if (!megaEvolved && !primalReverted && !dynamaxed)
+        return TRUE;
 
     if (megaEvolved)
         sprite->tType = INDICATOR_MEGA;
@@ -1751,8 +1726,6 @@ static bool32 MegaIndicator_ShouldBeInvisible(u32 battlerId, struct Sprite *spri
         sprite->tType = INDICATOR_OMEGA;
     else if (dynamaxed)
         sprite->tType = INDICATOR_DYNAMAX;
-    else if (isShiny)
-        sprite->tType = INDICATOR_SHINY;
 
     sprite->oam.tileNum = GetSpriteTileStartByTag(sMegaIndicatorTags[sprite->tType][0]);
     sprite->oam.paletteNum = IndexOfSpritePaletteTag(sMegaIndicatorTags[sprite->tType][1]);
@@ -2579,17 +2552,12 @@ void UpdateHealthboxAttribute(u8 healthboxSpriteId, struct Pokemon *mon, u8 elem
     s32 maxHp = GetMonData(mon, MON_DATA_MAX_HP);
     s32 currHp = GetMonData(mon, MON_DATA_HP);
 
-    bool32 isShiny = FALSE;
-
-    if (GetMonData(mon, MON_DATA_IS_SHINY) == TRUE)
-        isShiny = TRUE;
-
     if (GetBattlerSide(battlerId) == B_SIDE_PLAYER)
     {
         u8 isDoubles = WhichBattleCoords(battlerId);
 
         if (elementId == HEALTHBOX_LEVEL || elementId == HEALTHBOX_ALL)
-            UpdateLvlInHealthbox(healthboxSpriteId, GetMonData(mon, MON_DATA_LEVEL), isShiny);
+            UpdateLvlInHealthbox(healthboxSpriteId, GetMonData(mon, MON_DATA_LEVEL));
 
         if (elementId == HEALTHBOX_ALL)
             UpdateHpTextInHealthbox(healthboxSpriteId, HP_BOTH, currHp, maxHp);
@@ -2634,7 +2602,7 @@ void UpdateHealthboxAttribute(u8 healthboxSpriteId, struct Pokemon *mon, u8 elem
     else
     {
         if (elementId == HEALTHBOX_LEVEL || elementId == HEALTHBOX_ALL)
-            UpdateLvlInHealthbox(healthboxSpriteId, GetMonData(mon, MON_DATA_LEVEL), isShiny);
+            UpdateLvlInHealthbox(healthboxSpriteId, GetMonData(mon, MON_DATA_LEVEL));
         if (gBattleSpritesDataPtr->battlerData[battlerId].hpNumbersNoBars)
         {
             if (elementId == HEALTHBOX_ALL)
