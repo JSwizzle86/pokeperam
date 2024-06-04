@@ -15,6 +15,7 @@
 #include "pokeball.h"
 #include "battle_debug.h"
 #include "battle_dynamax.h"
+#include "battle_terastal.h"
 #include "random.h" // for rng_value_t
 
 // Helper for accessing command arguments and advancing gBattlescriptCurrInstr.
@@ -177,7 +178,6 @@ struct ProtectStruct
     u32 flinchImmobility:1;
     u32 notFirstStrike:1;
     u32 palaceUnableToUseMove:1;
-    u32 usesBouncedMove:1;
     u32 usedHealBlockedMove:1;
     u32 usedGravityPreventedMove:1;
     u32 powderSelfDmg:1;
@@ -298,7 +298,8 @@ struct FieldTimer
 struct WishFutureKnock
 {
     u8 futureSightCounter[MAX_BATTLERS_COUNT];
-    u8 futureSightAttacker[MAX_BATTLERS_COUNT];
+    u8 futureSightBattlerIndex[MAX_BATTLERS_COUNT];
+    u8 futureSightPartyIndex[MAX_BATTLERS_COUNT];
     u16 futureSightMove[MAX_BATTLERS_COUNT];
     u8 wishCounter[MAX_BATTLERS_COUNT];
     u8 wishPartyId[MAX_BATTLERS_COUNT];
@@ -311,7 +312,8 @@ struct AI_SavedBattleMon
     u16 ability;
     u16 moves[MAX_MON_MOVES];
     u16 heldItem;
-    u16 species;
+    u16 species:15;
+    u16 saved:1;
     u8 types[3];
 };
 
@@ -362,6 +364,8 @@ struct AiLogicData
     bool8 weatherHasEffect; // The same as WEATHER_HAS_EFFECT. Stored here, so it's called only once.
     u8 mostSuitableMonId[MAX_BATTLERS_COUNT]; // Stores result of GetMostSuitableMonToSwitchInto, which decides which generic mon the AI would switch into if they decide to switch. This can be overruled by specific mons found in ShouldSwitch; the final resulting mon is stored in AI_monToSwitchIntoId.
     struct SwitchinCandidate switchinCandidate; // Struct used for deciding which mon to switch to in battle_ai_switch_items.c
+    bool8 shouldTerastal[MAX_BATTLERS_COUNT];
+    bool8 shouldDynamax[MAX_BATTLERS_COUNT];
 };
 
 struct AI_ThinkingStruct
@@ -610,6 +614,17 @@ struct DynamaxData
     u16 levelUpHP;
 };
 
+struct TeraData
+{
+    bool8 toTera; // flags using gBitTable
+    bool8 isTerastallized[NUM_BATTLE_SIDES]; // stored as a bitfield for each side's party members
+    bool8 alreadyTerastallized[MAX_BATTLERS_COUNT];
+    bool8 playerSelect;
+    u32 stellarBoostFlags[NUM_BATTLE_SIDES]; // stored as a bitfield of flags for all types for each side
+    u8 triggerSpriteId;
+    u8 indicatorSpriteId[MAX_BATTLERS_COUNT];
+};
+
 struct LostItem
 {
     u16 originalItem:15;
@@ -723,7 +738,10 @@ struct BattleStruct
     u8 magnitudeBasePower;
     u8 presentBasePower;
     u8 roostTypes[MAX_BATTLERS_COUNT][2];
-    u8 savedBattlerTarget;
+    u8 savedBattlerTarget[5];
+    u8 savedBattlerAttacker[5];
+    u8 savedTargetCount:4;
+    u8 savedAttackerCount:4;
     bool8 ateBoost[MAX_BATTLERS_COUNT];
     u8 activeAbilityPopUps; // as bits for each battler
     u8 abilityPopUpSpriteIds[MAX_BATTLERS_COUNT][2];    // two per battler
@@ -732,6 +750,7 @@ struct BattleStruct
     struct UltraBurstData burst;
     struct ZMoveData zmove;
     struct DynamaxData dynamax;
+    struct TeraData tera;
     const u8 *trainerSlideMsg;
     bool8 trainerSlideLowHpMsgDone;
     u8 introState;
@@ -755,9 +774,10 @@ struct BattleStruct
     u8 quickClawBattlerId;
     struct LostItem itemLost[PARTY_SIZE];  // Player's team that had items consumed or stolen (two bytes per party member)
     u8 forcedSwitch:4; // For each battler
+    u8 additionalEffectsCounter:4; // A counter for the additionalEffects applied by the current move in Cmd_setadditionaleffects
     u8 blunderPolicy:1; // should blunder policy activate
     u8 swapDamageCategory:1; // Photon Geyser, Shell Side Arm, Light That Burns the Sky
-    u8 additionalEffectsCounter:4; // A counter for the additionalEffects applied by the current move in Cmd_setadditionaleffects
+    u8 bouncedMoveIsUsed:1;
     u8 ballSpriteIds[2];    // item gfx, window gfx
     u8 appearedInBattle; // Bitfield to track which Pokemon appeared in battle. Used for Burmy's form change
     u8 skyDropTargets[MAX_BATTLERS_COUNT]; // For Sky Drop, to account for if multiple Pokemon use Sky Drop in a double battle.
@@ -786,6 +806,7 @@ struct BattleStruct
     u8 trainerSlideDynamaxMsgDone:1;
     u8 pledgeMove:1;
     u8 isSkyBattle:1;
+    u8 poisonPuppeteerConfusion:1;
     u32 aiDelayTimer; // Counts number of frames AI takes to choose an action.
     u32 aiDelayFrames; // Number of frames it took to choose an action.
     u8 timesGotHit[NUM_BATTLE_SIDES][PARTY_SIZE];
@@ -799,6 +820,7 @@ struct BattleStruct
     u8 quickClawRandom[MAX_BATTLERS_COUNT];
     u8 quickDrawRandom[MAX_BATTLERS_COUNT];
     u8 boosterEnergyActivates;
+    u8 distortedTypeMatchups;
 };
 
 // The palaceFlags member of struct BattleStruct contains 1 flag per move to indicate which moves the AI should consider,
@@ -828,9 +850,9 @@ STATIC_ASSERT(sizeof(((struct BattleStruct *)0)->palaceFlags) * 8 >= MAX_BATTLER
 #define TARGET_TURN_DAMAGED ((gSpecialStatuses[gBattlerTarget].physicalDmg != 0 || gSpecialStatuses[gBattlerTarget].specialDmg != 0) || (gBattleStruct->enduredDamage & gBitTable[gBattlerTarget]))
 #define BATTLER_TURN_DAMAGED(battlerId) ((gSpecialStatuses[battlerId].physicalDmg != 0 || gSpecialStatuses[battlerId].specialDmg != 0) || (gBattleStruct->enduredDamage & gBitTable[battler]))
 
-#define IS_BATTLER_OF_TYPE(battlerId, type)((GetBattlerType(battlerId, 0) == type || GetBattlerType(battlerId, 1) == type || (GetBattlerType(battlerId, 2) != TYPE_MYSTERY && GetBattlerType(battlerId, 2) == type)))
-
-#define IS_BATTLER_TYPELESS(battlerId)(GetBattlerType(battlerId, 0) == TYPE_MYSTERY && GetBattlerType(battlerId, 1) == TYPE_MYSTERY && GetBattlerType(battlerId, 2) == TYPE_MYSTERY)
+#define IS_BATTLER_OF_TYPE(battlerId, type)((GetBattlerType(battlerId, 0, FALSE) == type || GetBattlerType(battlerId, 1, FALSE) == type || (GetBattlerType(battlerId, 2, FALSE) != TYPE_MYSTERY && GetBattlerType(battlerId, 2, FALSE) == type)))
+#define IS_BATTLER_OF_BASE_TYPE(battlerId, type)((GetBattlerType(battlerId, 0, TRUE) == type || GetBattlerType(battlerId, 1, TRUE) == type || (GetBattlerType(battlerId, 2, TRUE) != TYPE_MYSTERY && GetBattlerType(battlerId, 2, TRUE) == type)))
+#define IS_BATTLER_TYPELESS(battlerId)(GetBattlerType(battlerId, 0, FALSE) == TYPE_MYSTERY && GetBattlerType(battlerId, 1, FALSE) == TYPE_MYSTERY && GetBattlerType(battlerId, 2, FALSE) == TYPE_MYSTERY)
 
 #define SET_BATTLER_TYPE(battlerId, type)           \
 {                                                   \
@@ -1127,6 +1149,7 @@ extern u16 gLastThrownBall;
 extern u16 gBallToDisplay;
 extern bool8 gLastUsedBallMenuPresent;
 extern u8 gPartyCriticalHits[PARTY_SIZE];
+extern u8 gCategoryIconSpriteId;
 
 static inline u32 GetBattlerPosition(u32 battler)
 {
