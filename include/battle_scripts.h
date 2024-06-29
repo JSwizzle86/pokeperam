@@ -84,6 +84,7 @@ extern const u8 BattleScript_DmgHazardsOnBattlerScripting[];
 extern const u8 BattleScript_DmgHazardsOnFaintedBattler[];
 extern const u8 BattleScript_PerishSongTakesLife[];
 extern const u8 BattleScript_PerishSongCountGoesDown[];
+extern const u8 BattleScript_AllStatsUpZMove[];
 extern const u8 BattleScript_AllStatsUp[];
 extern const u8 BattleScript_RapidSpinAway[];
 extern const u8 BattleScript_WrapFree[];
@@ -808,7 +809,6 @@ extern const u8 BattleScript_EffectPlasmaFists[];
 extern const u8 BattleScript_EffectHyperspaceFury[];
 extern const u8 BattleScript_EffectAuraWheel[];
 extern const u8 BattleScript_EffectPhotonGeyser[];
-extern const u8 BattleScript_EffectShellSideArm[];
 extern const u8 BattleScript_EffectNoRetreat[];
 extern const u8 BattleScript_EffectTarShot[];
 extern const u8 BattleScript_EffectPoltergeist[];
@@ -839,5 +839,6 @@ extern const u8 BattleScript_EffectShedTail[];
 extern const u8 BattleScript_EffectUpperHand[];
 extern const u8 BattleScript_EffectTidyUp[];
 extern const u8 BattleScript_EffectSpicyExtract[];
+extern const u8 BattleScript_DamageToQuarterTargetHP[];
 
 #endif // GUARD_BATTLE_SCRIPTS_H
