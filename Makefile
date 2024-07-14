@@ -80,7 +80,7 @@ MODERN_ELF_NAME := $(MODERN_ROM_NAME:.gba=.elf)
 MODERN_MAP_NAME := $(MODERN_ROM_NAME:.gba=.map)
 MODERN_OBJ_DIR_NAME := build/modern
 
-SHELL := /bin/bash -o pipefail
+SHELL := bash -o pipefail
 
 ELF = $(ROM:.gba=.elf)
 MAP = $(ROM:.gba=.map)
@@ -346,7 +346,7 @@ sound/%.bin: sound/%.aif ; $(AIF) $< $@
 
 COMPETITIVE_PARTY_SYNTAX := $(shell PATH="$(PATH)"; echo 'COMPETITIVE_PARTY_SYNTAX' | $(CPP) $(CPPFLAGS) -imacros include/global.h | tail -n1)
 ifeq ($(COMPETITIVE_PARTY_SYNTAX),1)
-%.h: %.party tools ; $(CPP) $(CPPFLAGS) - < $< | sed '/#[^p]/d' | $(TRAINERPROC) -o $@ -i $< -
+%.h: %.party tools ; $(CPP) $(CPPFLAGS) -traditional-cpp - < $< | sed '/#[^p]/d' | $(TRAINERPROC) -o $@ -i $< -
 endif
 
 ifeq ($(MODERN),0)
