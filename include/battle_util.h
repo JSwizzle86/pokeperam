@@ -32,8 +32,6 @@ enum {
     ABILITYEFFECT_IMMUNITY,
     ABILITYEFFECT_SYNCHRONIZE,
     ABILITYEFFECT_ATK_SYNCHRONIZE,
-    ABILITYEFFECT_TRACE1,
-    ABILITYEFFECT_TRACE2,
     ABILITYEFFECT_MOVE_END_OTHER,
     ABILITYEFFECT_NEUTRALIZINGGAS,
     ABILITYEFFECT_FIELD_SPORT,         // Only used if B_SPORT_TURNS >= GEN_6
@@ -157,7 +155,7 @@ bool32 TryChangeBattleWeather(u32 battler, u32 weatherEnumId, bool32 viaAbility)
 u32 AbilityBattleEffects(u32 caseID, u32 battler, u32 ability, u32 special, u32 moveArg);
 bool32 TryPrimalReversion(u32 battler);
 bool32 IsNeutralizingGasOnField(void);
-bool32 IsMoldBreakerTypeAbility(u32 ability);
+bool32 IsMoldBreakerTypeAbility(u32 battler, u32 ability);
 u32 GetBattlerAbility(u32 battler);
 u32 IsAbilityOnSide(u32 battler, u32 ability);
 u32 IsAbilityOnOpposingSide(u32 battler, u32 ability);
