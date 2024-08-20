@@ -231,6 +231,8 @@ bool32 TryRoomService(u32 battler);
 void BufferStatChange(u32 battler, u8 statId, u8 stringId);
 bool32 BlocksPrankster(u16 move, u32 battlerPrankster, u32 battlerDef, bool32 checkTarget);
 u16 GetUsedHeldItem(u32 battler);
+bool32 PickupHasValidTarget(u32 battler);
+bool32 CantPickupItem(u32 battler);
 bool32 IsBattlerWeatherAffected(u32 battler, u32 weatherFlags);
 u32 GetBattlerMoveTargetType(u32 battler, u32 move);
 bool32 CanTargetBattler(u32 battlerAtk, u32 battlerDef, u16 move);
@@ -268,5 +270,6 @@ u8 GetBattlerType(u32 battler, u8 typeIndex, bool32 ignoreTera);
 bool8 CanMonParticipateInSkyBattle(struct Pokemon *mon);
 bool8 IsMonBannedFromSkyBattles(u16 species);
 void RemoveBattlerType(u32 battler, u8 type);
+u32 GetMoveType(u32 move);
 
 #endif // GUARD_BATTLE_UTIL_H
