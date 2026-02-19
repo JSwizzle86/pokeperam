@@ -9,8 +9,6 @@
 
 #define ANIM_FRAMES(...) (const union AnimCmd *const[]) { sAnim_GeneralFrame0, (const union AnimCmd[]) { __VA_ARGS__ ANIMCMD_END, }, }
 
-#define ANIM_FRAMES(...) (const union AnimCmd *const[]) { sAnim_GeneralFrame0, (const union AnimCmd[]) { __VA_ARGS__ ANIMCMD_END, }, }
-
 #if P_FOOTPRINTS
 #define FOOTPRINT(sprite) .footprint = gMonFootprint_## sprite,
 #else

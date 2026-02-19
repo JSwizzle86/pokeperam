@@ -2,10 +2,9 @@
 #define GUARD_CONFIG_ITEM_H
 
 // Item config
-#define I_EXPANDED_ITEM_NAMES           TRUE        // If set to FALSE, item names are decreased from 20 characters to 14 characters.
-#define I_SHINY_CHARM_ADDITIONAL_ROLLS  8           // Amount of additional shiny rolls if the player has the Shiny Charm. Set it to 0 to disable Shiny Charm's effects.
+#define I_SHINY_CHARM_ADDITIONAL_ROLLS  2           // Amount of additional shiny rolls if the player has the Shiny Charm. Set it to 0 to disable Shiny Charm's effects.
 #define I_KEY_FOSSILS                   GEN_LATEST  // In Gen4+, all Gen 3 fossils became regular items.
-#define I_KEY_ESCAPE_ROPE               GEN_7  // In Gen8, Escape Rope became a Key Item. Keep in mind, this will make it free to buy in marts.
+#define I_KEY_ESCAPE_ROPE               GEN_LATEST  // In Gen8, Escape Rope became a Key Item. Keep in mind, this will make it free to buy in marts.
 #define I_HEALTH_RECOVERY               GEN_LATEST  // In Gen7+, certain healing items recover a different amount of HP than they used to.
 #define I_SITRUS_BERRY_HEAL             GEN_LATEST  // In Gen4+, Sitrus Berry was changed from healing 30 HP to healing 25% of Max HP.
 #define I_VITAMIN_EV_CAP                GEN_LATEST  // In Gen8+, the Vitamins no longer have a cap of 100 EV per stat.
@@ -23,7 +22,7 @@
 #define I_REPEL_INCLUDE_FAINTED         GEN_LATEST  // In Gen1 and Gen6+, Repels always use the level of the first member of the party to check which wild Pokémon to prevent encounters with, even if that member is fainted. In Gen2-5, it only uses the level of the first non-fainted Pokémon.
 
 // TM config
-#define I_REUSABLE_TMS          TRUE       // In Gen5-8, TMs are reusable. Setting this to TRUE will make all vanilla TMs reusable, though they can also be cherry-picked by setting their importance to 1.
+#define I_REUSABLE_TMS          FALSE       // In Gen5-8, TMs are reusable. Setting this to TRUE will make all vanilla TMs reusable, though they can also be cherry-picked by setting their importance to 1.
 
 // Exp. Share config
 // To use this feature, replace the 0 with the flag ID you're assigning it to.
@@ -37,7 +36,7 @@
 #define I_REPEL_LURE_MENU           TRUE    // If TRUE, the player is able to choose which Repel/Lure to use once the previous one runs out. Cursor position is saved by VAR_LAST_REPEL_LURE_USED if not 0.
 
 // Vs. Seeker
-#define I_VS_SEEKER_CHARGING        FLAG_VS_SEEKER     // If this flag is assigned, the Vs Seeker functionality will be enabled. When the player has the Vs. Seeker, Match Call rematch functions will stop working.
+#define I_VS_SEEKER_CHARGING        0     // If this flag is assigned, the Vs Seeker functionality will be enabled. When the player has the Vs. Seeker, Match Call rematch functions will stop working. Documentation for the Vs. Seeker can be found in docs/tutorials/vs_seeker.md.
 
 // Fishing
 #define I_FISHING_BITE_ODDS        GEN_LATEST // In Gen 1 and Gen 2, the Old Rod has a 100% chance for a bite, Good Rod has a 66% chance for a bite, and Super Rod has a 50% chance for a bite. In Gen 3, all rods have a base 50% chance for a bite. In Gen 4 onwards, the Old Rod has a base 25% chance for a bite, Good Rod has a 50% chance for a bite, and Super Rod has a 75% chance for a bite.

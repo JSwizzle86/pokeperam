@@ -142,7 +142,7 @@ static EWRAM_DATA struct PokemonSummaryScreenData
         u8 ribbonCount; // 0x6
         u8 ailment; // 0x7
         u8 abilityNum; // 0x8
-        u8 metLocation; // 0x9
+        metloc_u8_t metLocation; // 0x9
         u8 metLevel; // 0xA
         u8 metGame; // 0xB
         u32 pid; // 0xC
@@ -334,6 +334,7 @@ static const u8 *GetLetterGrade(u32 stat);
 static u8 AddWindowFromTemplateList(const struct WindowTemplate *template, u8 templateId);
 static u8 IncrementSkillsStatsMode(u8 mode);
 static void ClearStatLabel(u32 length, u32 statsCoordX, u32 statsCoordY);
+u32 GetAdjustedIvData(struct Pokemon *mon, u32 stat);
 
 static const struct BgTemplate sBgTemplates[] =
 {
@@ -734,7 +735,7 @@ static void (*const sTextPrinterFunctions[])(void) =
     [PSS_PAGE_CONTEST_MOVES] = PrintContestMoves
 };
 
-static void (*const sTextPrinterTasks[])(u8 taskId) =
+static const TaskFunc sTextPrinterTasks[] =
 {
     [PSS_PAGE_INFO] = Task_PrintInfoPage,
     [PSS_PAGE_SKILLS] = Task_PrintSkillsPage,
@@ -1156,7 +1157,7 @@ static const struct SpriteTemplate sSpriteTemplate_StatusCondition =
 static const u16 sMarkings_Pal[] = INCBIN_U16("graphics/summary_screen/markings.gbapal");
 
 // code
-static u8 ShowCategoryIcon(u32 category)
+static u8 ShowCategoryIcon(enum DamageCategory category)
 {
     if (sMonSummaryScreen->categoryIconSpriteId == 0xFF)
         sMonSummaryScreen->categoryIconSpriteId = CreateSprite(&gSpriteTemplate_CategoryIcons, 48, 128, 0);
@@ -1171,6 +1172,13 @@ static void DestroyCategoryIcon(void)
     if (sMonSummaryScreen->categoryIconSpriteId != 0xFF)
         DestroySprite(&gSprites[sMonSummaryScreen->categoryIconSpriteId]);
     sMonSummaryScreen->categoryIconSpriteId = 0xFF;
+}
+
+u32 GetAdjustedIvData(struct Pokemon *mon, u32 stat)
+{
+    if (P_SUMMARY_SCREEN_IV_HYPERTRAIN && GetMonData(mon, MON_DATA_HYPER_TRAINED_HP + stat))
+        return MAX_PER_STAT_IVS;
+    return GetMonData(mon, MON_DATA_HP_IV + stat);
 }
 
 void ShowPokemonSummaryScreen(u8 mode, void *mons, u8 monIndex, u8 maxMonIndex, void (*callback)(void))
@@ -1418,24 +1426,24 @@ static bool8 DecompressGraphics(void)
     case 1:
         if (FreeTempTileDataBuffersIfPossible() != 1)
         {
-            LZDecompressWram(gSummaryPage_Info_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_INFO][0]);
+            DecompressDataWithHeaderWram(gSummaryPage_Info_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_INFO][0]);
             sMonSummaryScreen->switchCounter++;
         }
         break;
     case 2:
-        LZDecompressWram(gSummaryPage_InfoEgg_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_INFO][1]);
+        DecompressDataWithHeaderWram(gSummaryPage_InfoEgg_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_INFO][1]);
         sMonSummaryScreen->switchCounter++;
         break;
     case 3:
-        LZDecompressWram(gSummaryPage_Skills_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_SKILLS][1]);
+        DecompressDataWithHeaderWram(gSummaryPage_Skills_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_SKILLS][1]);
         sMonSummaryScreen->switchCounter++;
         break;
     case 4:
-        LZDecompressWram(gSummaryPage_BattleMoves_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_BATTLE_MOVES][1]);
+        DecompressDataWithHeaderWram(gSummaryPage_BattleMoves_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_BATTLE_MOVES][1]);
         sMonSummaryScreen->switchCounter++;
         break;
     case 5:
-        LZDecompressWram(gSummaryPage_ContestMoves_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_CONTEST_MOVES][1]);
+        DecompressDataWithHeaderWram(gSummaryPage_ContestMoves_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_CONTEST_MOVES][1]);
         sMonSummaryScreen->switchCounter++;
         break;
     case 6:
@@ -1864,12 +1872,12 @@ void ExtractMonSkillStatsData(struct Pokemon *mon, struct PokeSummary *sum)
 
 void ExtractMonSkillIvData(struct Pokemon *mon, struct PokeSummary *sum)
 {
-    sum->currentHP = GetMonData(mon, MON_DATA_HP_IV);
-    sum->atk = GetMonData(mon, MON_DATA_ATK_IV);
-    sum->def = GetMonData(mon, MON_DATA_DEF_IV);
-    sum->spatk = GetMonData(mon, MON_DATA_SPATK_IV);
-    sum->spdef = GetMonData(mon, MON_DATA_SPDEF_IV);
-    sum->speed = GetMonData(mon, MON_DATA_SPEED_IV);
+    sum->currentHP = GetAdjustedIvData(mon, STAT_HP);
+    sum->atk = GetAdjustedIvData(mon, STAT_ATK);
+    sum->def =  GetAdjustedIvData(mon, STAT_DEF);
+    sum->spatk = GetAdjustedIvData(mon, STAT_SPATK);
+    sum->spdef = GetAdjustedIvData(mon, STAT_SPDEF);
+    sum->speed = GetAdjustedIvData(mon, STAT_SPEED);
 }
 
 void ExtractMonSkillEvData(struct Pokemon *mon, struct PokeSummary *sum)
@@ -2609,7 +2617,7 @@ static bool8 CanReplaceMove(void)
 {
     if (sMonSummaryScreen->firstMoveIndex == MAX_MON_MOVES
         || sMonSummaryScreen->newMove == MOVE_NONE
-        || IsMoveHM(sMonSummaryScreen->summary.moves[sMonSummaryScreen->firstMoveIndex]) != TRUE)
+        || !CannotForgetMove(sMonSummaryScreen->summary.moves[sMonSummaryScreen->firstMoveIndex]))
         return TRUE;
     else
         return FALSE;
@@ -3792,18 +3800,18 @@ static const u8 *GetLetterGrade(u32 stat)
     static const u8 gText_GradeA[] = _("A");
     static const u8 gText_GradeS[] = _("S");
 
-    if (stat > 0 && stat <= 15)
-        return gText_GradeD;
-    else if (stat > 15 && stat <= 25)
-        return gText_GradeC;
-    else if (stat > 26 && stat <= 29)
-        return gText_GradeB;
-    else if (stat == 30)
-        return gText_GradeA;
-    else if (stat == 31)
-        return gText_GradeS;
-    else
+    if (stat <= 0)
         return gText_GradeF;
+    else if (stat <= 15)
+        return gText_GradeD;
+    else if (stat <= 25)
+        return gText_GradeC;
+    else if (stat <= 29)
+        return gText_GradeB;
+    else if (stat <= 30)
+        return gText_GradeA;
+    else
+        return gText_GradeS;
 }
 
 static void BufferLeftColumnStats(void)
@@ -4276,10 +4284,10 @@ static void SetMonTypeIcons(void)
     }
     else
     {
-        SetTypeSpritePosAndPal(gSpeciesInfo[summary->species].types[0], 120, 48, SPRITE_ARR_ID_TYPE);
-        if (gSpeciesInfo[summary->species].types[0] != gSpeciesInfo[summary->species].types[1])
+        SetTypeSpritePosAndPal(GetSpeciesType(summary->species, 0), 120, 48, SPRITE_ARR_ID_TYPE);
+        if (GetSpeciesType(summary->species, 0) != GetSpeciesType(summary->species, 1))
         {
-            SetTypeSpritePosAndPal(gSpeciesInfo[summary->species].types[1], 160, 48, SPRITE_ARR_ID_TYPE + 1);
+            SetTypeSpritePosAndPal(GetSpeciesType(summary->species, 1), 160, 48, SPRITE_ARR_ID_TYPE + 1);
             SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 1, FALSE);
         }
         else

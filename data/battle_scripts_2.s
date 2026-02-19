@@ -75,6 +75,10 @@ BattleScript_ItemRestoreHP_Party::
 	return
 
 BattleScript_ItemRestoreHP_SendOutRevivedBattler:
+	switchhandleorder BS_SCRIPTING, 0
+	getswitchedmondata BS_SCRIPTING
+	switchindataupdate BS_SCRIPTING
+	trytoclearprimalweather
 	switchinanim BS_SCRIPTING, FALSE, FALSE
 	waitstate
 	switchineffects BS_SCRIPTING
@@ -83,11 +87,16 @@ BattleScript_ItemRestoreHP_SendOutRevivedBattler:
 BattleScript_ItemCureStatus::
 	call BattleScript_UseItemMessage
 BattleScript_ItemCureStatusAfterItemMsg:
-	itemcurestatus BattleScript_ItemCureStatusEnd
-	updatestatusicon BS_SCRIPTING
+	itemcurestatus BattleScript_ItemCureStatusEnd, BattleScript_CureStatus_Battler
 	printstring STRINGID_ITEMCUREDSPECIESSTATUS
 	waitmessage B_WAIT_TIME_LONG
 BattleScript_ItemCureStatusEnd:
+	end
+
+BattleScript_CureStatus_Battler::
+	updatestatusicon BS_SCRIPTING
+	printstring STRINGID_ITEMCUREDSPECIESSTATUS
+	waitmessage B_WAIT_TIME_LONG
 	end
 
 BattleScript_ItemHealAndCureStatus::
@@ -104,9 +113,7 @@ BattleScript_ItemHealAndCureStatusEnd::
 BattleScript_ItemIncreaseStat::
 	call BattleScript_UseItemMessage
 	itemincreasestat
-	statbuffchange MOVE_EFFECT_AFFECTS_USER | STAT_CHANGE_NOT_PROTECT_AFFECTED | STAT_CHANGE_ALLOW_PTR, BattleScript_ItemEnd
-	setgraphicalstatchangevalues
-	playanimation BS_ATTACKER, B_ANIM_STATS_CHANGE, sB_ANIM_ARG1
+	statbuffchange BS_ATTACKER, STAT_CHANGE_NOT_PROTECT_AFFECTED | STAT_CHANGE_ALLOW_PTR, BattleScript_ItemEnd
 	printfromtable gStatUpStringIds
 	waitmessage B_WAIT_TIME_LONG
 	end
@@ -133,7 +140,7 @@ BattleScript_PokeFluteEnd::
 BattleScript_ItemSetMist::
 	call BattleScript_UseItemMessage
 	setmist
-	playmoveanimation BS_ATTACKER, MOVE_MIST
+	playmoveanimation MOVE_MIST
 	waitanimation
 	printfromtable gMistUsedStringIds
 	waitmessage B_WAIT_TIME_LONG
@@ -141,9 +148,10 @@ BattleScript_ItemSetMist::
 
 BattleScript_ItemSetFocusEnergy::
 	call BattleScript_UseItemMessage
-	jumpifstatus2 BS_ATTACKER, STATUS2_FOCUS_ENERGY_ANY, BattleScript_ButItFailed
+	jumpifvolatile BS_ATTACKER, VOLATILE_DRAGON_CHEER, BattleScript_ButItFailed
+	jumpifvolatile BS_ATTACKER, VOLATILE_FOCUS_ENERGY, BattleScript_ButItFailed
 	setfocusenergy BS_ATTACKER
-	playmoveanimation BS_ATTACKER, MOVE_FOCUS_ENERGY
+	playmoveanimation MOVE_FOCUS_ENERGY
 	waitanimation
 	copybyte sBATTLER, gBattlerAttacker
 	printstring STRINGID_PKMNUSEDXTOGETPUMPED
@@ -212,7 +220,10 @@ BattleScript_WallyBallThrow::
 	finishturn
 
 BattleScript_ShakeBallThrow::
+	animatewildpokemonafterfailedpokeball BS_TARGET
+	waitmessage B_WAIT_TIME_LONG
 	printfromtable gBallEscapeStringIds
+	waitanimation
 	waitmessage B_WAIT_TIME_LONG
 	jumpifword CMP_NO_COMMON_BITS, gBattleTypeFlags, BATTLE_TYPE_SAFARI, BattleScript_ShakeBallThrowEnd
 	jumpifbyte CMP_NOT_EQUAL, gNumSafariBalls, 0, BattleScript_ShakeBallThrowEnd

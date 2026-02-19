@@ -9,8 +9,9 @@
 #define OW_POISON_DAMAGE                GEN_LATEST // In Gen4, Pokémon no longer faint from Poison in the overworld. In Gen5+, they no longer take damage at all.
 #define OW_DOUBLE_APPROACH_WITH_ONE_MON FALSE      // If enabled, you can be spotted by two trainers at the same time even if you only have one eligible Pokémon in your party.
 #define OW_HIDE_REPEAT_MAP_POPUP        FALSE      // If enabled, map popups will not appear if entering a map with the same Map Section Id as the last.
-#define OW_FRLG_WHITEOUT                FALSE      // If enabled, shows an additional whiteout message and post whiteout event script with healing NPC.
+#define OW_WHITEOUT_CUTSCENE            GEN_LATEST // In Gen4+, whiting out shows an additional message and post whiteout event script cutscene with a healing NPC. (While this change was also in FRLG, for the sake of simplicity, setting this to GEN_3 will result in RSE behavior.)
 #define OW_DEFOG_FIELD_MOVE             FALSE      // If enabled, Defog can be used as a Field Move as seen in DPPt.
+#define OW_ROCK_CLIMB_FIELD_MOVE        FALSE      // If enabled, Rock Climb can be used as a Field Move as seen in DPPt.
 
 // Item Obtain Description Box
 #define OW_ITEM_DESCRIPTIONS_OFF        0   // never show descriptions
@@ -132,6 +133,7 @@
 #define OW_POPUP_BW_TIME_MODE      OW_POPUP_BW_TIME_NONE    // Determines what type of time is shown.
 #define OW_POPUP_BW_ALPHA_BLEND    FALSE                    // Enables alpha blending/transparency for the pop-ups. Mainly intended to be used with the black color option.
                                                             // Setting this to TRUE will cause graphical errors with the Day Night System enabled.
+                                                            // It will also cause minor visual glitches of shadow and reflection sprites adjusting their transparency when the pop-up disappear
 
 // Pokémon Center
 #define OW_IGNORE_EGGS_ON_HEAL           GEN_LATEST         // In Gen 4+, the nurse in the Pokémon Center does not heal Eggs on healing machine.
@@ -140,5 +142,8 @@
 
 // Berry Blender
 #define BERRY_BLENDER_THROW_ALL_BERRIES_AT_ONCE TRUE        // This is a small little addition, that basically speeds up the animation where all players' berries are thrown into the blender. Self-explanatory I hope!
+
+// Trainer Rematches
+#define OW_REMATCH_BADGE_COUNT      5 // Number of badges necessary before the match call or vs seeker features allow rematches
 
 #endif // GUARD_CONFIG_OVERWORLD_H
