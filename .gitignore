@@ -45,4 +45,3 @@ tools/trainerproc/trainerproc
 *.smol
 *.fastSmol
 *.smolTM
-test/battle/trainer_control.h
