@@ -523,6 +523,11 @@ static void Task_HandleMonAnimation(u8 taskId)
         sprite->data[2] = gTasks[taskId].tSpeciesId;
         sprite->data[1] = 0;
 
+        // Task_HandleMonAnimation handles more than just KO animations,
+        // but if the counter is non-zero then only KO animations are running.
+        // This assumption is not checked.
+        if (gBattleStruct->battlerKOAnimsRunning > 0)
+            gBattleStruct->battlerKOAnimsRunning--;
         DestroyTask(taskId);
     }
 }
@@ -551,7 +556,7 @@ void LaunchAnimationTaskForBackSprite(struct Sprite *sprite, u8 backAnimSet)
     gTasks[taskId].tPtrLo = (u32)(sprite);
 
     battler = sprite->data[0];
-    nature = GetNature(&gPlayerParty[gBattlerPartyIndexes[battler]]);
+    nature = GetNature(GetBattlerMon(battler));
 
     // * 3 below because each back anim has 3 variants depending on nature
     animId = 3 * backAnimSet + gNaturesInfo[nature].backAnim;

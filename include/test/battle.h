@@ -219,6 +219,17 @@
  *     {
  *         KNOWN_FAILING; // #2596.
  *
+ * KNOWN_CRASHING
+ * Marks a test as crashing due to a bug. If there is an issue number
+ * associated with the bug it should be included in a comment. If the
+ * test passes the developer will be notified to remove KNOWN_CRASHING.
+ * For example:
+ *     TEST("Crashes")
+ *     {
+ *         KNOWN_CRASHING; // #7255
+ *         void (*f)(void) = NULL;
+ *         f(); // Crashes!
+ *
  * PARAMETRIZE
  * Runs a test multiple times. i will be set to which parameter is
  * running, and results will contain an entry for each parameter, e.g.:
@@ -734,7 +745,7 @@ struct BattleTestRunnerState
     bool8 runThen:1;
     bool8 runFinally:1;
     bool8 runningFinally:1;
-    bool8 tearDownBattle:1;
+    bool8 hasTornDownBattle:1;
     struct BattleTestData data;
     u8 *results;
     u8 checkProgressParameter;
@@ -873,7 +884,7 @@ void OpenPokemon(u32 sourceLine, u32 side, u32 species);
 void ClosePokemon(u32 sourceLine);
 
 void RNGSeed_(u32 sourceLine, rng_value_t seed);
-void AIFlags_(u32 sourceLine, u32 flags);
+void AIFlags_(u32 sourceLine, u64 flags);
 void AILogScores(u32 sourceLine);
 void Gender_(u32 sourceLine, u32 gender);
 void Nature_(u32 sourceLine, u32 nature);

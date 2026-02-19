@@ -183,10 +183,10 @@ enum BattlerId
 #define STATUS3_GASTRO_ACID             (1 << 16)
 #define STATUS3_EMBARGO                 (1 << 17)
 #define STATUS3_UNDERWATER              (1 << 18)
-#define STATUS3_INTIMIDATE_POKES        (1 << 19)
-#define STATUS3_TRACE                   (1 << 20)
+#define STATUS3_UNUSED_19               (1 << 19)
+#define STATUS3_UNUSED_20               (1 << 20)
 #define STATUS3_SMACKED_DOWN            (1 << 21)
-#define STATUS3_ME_FIRST                (1 << 22)
+#define STATUS3_UNUSED_22               (1 << 22)
 #define STATUS3_TELEKINESIS             (1 << 23)
 #define STATUS3_PHANTOM_FORCE           (1 << 24)
 #define STATUS3_MIRACLE_EYED            (1 << 25)
@@ -217,19 +217,19 @@ enum BattlerId
 #define HITMARKER_NO_PPDEDUCT           (1 << 11)
 #define HITMARKER_UNUSED_2              (1 << 12)
 #define HITMARKER_STATUS_ABILITY_EFFECT (1 << 13)
-#define HITMARKER_SYNCHRONISE_EFFECT    (1 << 14)
+#define HITMARKER_SYNCHRONIZE_EFFECT    (1 << 14)
 #define HITMARKER_RUN                   (1 << 15)
 #define HITMARKER_IGNORE_DISGUISE       (1 << 16)
 #define HITMARKER_DISABLE_ANIMATION     (1 << 17)   // disable animations during battle scripts, e.g. for Bug Bite
 #define HITMARKER_UNUSED_3              (1 << 18)
 #define HITMARKER_UNABLE_TO_USE_MOVE    (1 << 19)
-#define HITMARKER_PASSIVE_DAMAGE        (1 << 20)
+#define HITMARKER_PASSIVE_HP_UPDATE     (1 << 20)
 #define HITMARKER_UNUSED_4              (1 << 21)
 #define HITMARKER_PLAYER_FAINTED        (1 << 22)
 #define HITMARKER_ALLOW_NO_PP           (1 << 23)
 #define HITMARKER_GRUDGE                (1 << 24)
 #define HITMARKER_OBEYS                 (1 << 25)
-#define HITMARKER_NEVER_SET             (1 << 26) // Cleared as part of a large group. Never set or checked
+#define HITMARKER_UNUSED_5              (1 << 26)
 #define HITMARKER_CHARGING              (1 << 27)
 #define HITMARKER_FAINTED(battler)      (1u << (battler + 28))
 #define HITMARKER_FAINTED2(battler)     HITMARKER_FAINTED(battler)
@@ -250,15 +250,11 @@ enum BattlerId
 #define SIDE_STATUS_TOXIC_SPIKES            (1 << 13)
 #define SIDE_STATUS_STEALTH_ROCK            (1 << 14)
 // Missing flags previously were SIDE_STATUS_TOXIC_SPIKES_DAMAGED, SIDE_STATUS_STEALTH_ROCK_DAMAGED, SIDE_STATUS_STICKY_WEB_DAMAGED
-#define SIDE_STATUS_QUICK_GUARD             (1 << 18)
-#define SIDE_STATUS_WIDE_GUARD              (1 << 19)
-#define SIDE_STATUS_CRAFTY_SHIELD           (1 << 20)
-#define SIDE_STATUS_MAT_BLOCK               (1 << 21)
-#define SIDE_STATUS_STEELSURGE              (1 << 22)
-#define SIDE_STATUS_DAMAGE_NON_TYPES        (1 << 23)
-#define SIDE_STATUS_RAINBOW                 (1 << 24)
-#define SIDE_STATUS_SEA_OF_FIRE             (1 << 25)
-#define SIDE_STATUS_SWAMP                   (1 << 26)
+#define SIDE_STATUS_STEELSURGE              (1 << 18)
+#define SIDE_STATUS_DAMAGE_NON_TYPES        (1 << 19)
+#define SIDE_STATUS_RAINBOW                 (1 << 20)
+#define SIDE_STATUS_SEA_OF_FIRE             (1 << 21)
+#define SIDE_STATUS_SWAMP                   (1 << 22)
 
 #define SIDE_STATUS_HAZARDS_ANY    (SIDE_STATUS_SPIKES | SIDE_STATUS_STICKY_WEB | SIDE_STATUS_TOXIC_SPIKES | SIDE_STATUS_STEALTH_ROCK | SIDE_STATUS_STEELSURGE)
 #define SIDE_STATUS_SCREEN_ANY     (SIDE_STATUS_REFLECT | SIDE_STATUS_LIGHTSCREEN | SIDE_STATUS_AURORA_VEIL)
@@ -367,7 +363,6 @@ enum MoveEffects
     MOVE_EFFECT_REMOVE_ARG_TYPE,
     MOVE_EFFECT_RECHARGE,
     MOVE_EFFECT_RAGE,
-    MOVE_EFFECT_STEAL_ITEM,
     MOVE_EFFECT_PREVENT_ESCAPE,
     MOVE_EFFECT_NIGHTMARE,
     MOVE_EFFECT_ALL_STATS_UP,
@@ -389,10 +384,8 @@ enum MoveEffects
     MOVE_EFFECT_EVS_MINUS_2,
     MOVE_EFFECT_SCALE_SHOT,
     MOVE_EFFECT_THRASH,
-    MOVE_EFFECT_KNOCK_OFF,
     MOVE_EFFECT_DEF_SPDEF_DOWN,
     MOVE_EFFECT_CLEAR_SMOG,
-    MOVE_EFFECT_SMACK_DOWN,
     MOVE_EFFECT_FLAME_BURST,
     MOVE_EFFECT_FEINT,
     MOVE_EFFECT_V_CREATE,
@@ -404,10 +397,7 @@ enum MoveEffects
     MOVE_EFFECT_RECOIL_HP_25,
     MOVE_EFFECT_TRAP_BOTH,
     MOVE_EFFECT_ROUND,
-    MOVE_EFFECT_STOCKPILE_WORE_OFF,
     MOVE_EFFECT_DIRE_CLAW,
-    MOVE_EFFECT_STEALTH_ROCK,
-    MOVE_EFFECT_SPIKES,
     MOVE_EFFECT_SYRUP_BOMB,
     MOVE_EFFECT_FLORAL_HEALING,
     MOVE_EFFECT_SECRET_POWER,
@@ -421,6 +411,11 @@ enum MoveEffects
     MOVE_EFFECT_LIGHT_SCREEN,
     MOVE_EFFECT_SALT_CURE,
     MOVE_EFFECT_EERIE_SPELL,
+
+    // Max move effects happen earlier in the execution chain.
+    // For example stealth rock from G-Max Stonesurge is set up before abilities but from Stone Axe after.
+    // Stone Axe can also fail to set up rocks if user faints where as Stonesurge will always go up.
+    // This means we need to be careful if we want to re-use those effects for (new) vanilla moves
     MOVE_EFFECT_RAISE_TEAM_ATTACK,
     MOVE_EFFECT_RAISE_TEAM_DEFENSE,
     MOVE_EFFECT_RAISE_TEAM_SPEED,
@@ -462,11 +457,14 @@ enum MoveEffects
     MOVE_EFFECT_LOWER_EVASIVENESS_SIDE,
     MOVE_EFFECT_AROMATHERAPY,
     MOVE_EFFECT_CONFUSE_SIDE,
-    MOVE_EFFECT_STEELSURGE,
+    MOVE_EFFECT_STEELSURGE, // Steel type rocks
+    MOVE_EFFECT_STEALTH_ROCK, // Max Move rocks, not to be confused for rocks set up from Ceasless Edge (same but differ in execution order)
     MOVE_EFFECT_TORMENT_SIDE,
     MOVE_EFFECT_LOWER_SPEED_2_SIDE,
     MOVE_EFFECT_FIRE_SPIN_SIDE,
     MOVE_EFFECT_FIXED_POWER,
+    // Max move effects end. They can be used for (custom) normal moves.
+
     NUM_MOVE_EFFECTS
 };
 
