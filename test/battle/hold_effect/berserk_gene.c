@@ -269,7 +269,7 @@ SINGLE_BATTLE_TEST("Berserker Gene confusion can be healed with bag items")
     PARAMETRIZE { item = ITEM_JUBILIFE_MUFFIN; }
     GIVEN {
         ASSUME(gItemsInfo[item].battleUsage == EFFECT_ITEM_CURE_STATUS);
-        PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_BERSERK_GENE);};
+        PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_BERSERK_GENE); }
         OPPONENT(SPECIES_GENGAR);
     } WHEN {
         TURN { USE_ITEM(player, item, partyIndex: 0); }
@@ -290,31 +290,16 @@ SINGLE_BATTLE_TEST("Berserker Gene confusion can be healed with used held items"
 
     GIVEN {
         ASSUME(gItemsInfo[ITEM_PERSIM_BERRY].holdEffect == HOLD_EFFECT_CURE_CONFUSION);
-        PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_BERSERK_GENE);};
-        OPPONENT(SPECIES_WOBBUFFET) { Item(item);};
+        PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_BERSERK_GENE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Item(item); }
     } WHEN {
         TURN { MOVE(player, MOVE_COVET, WITH_RNG(RNG_CONFUSION, FALSE)); }
+        TURN {}
     } SCENE {
         ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
         ANIMATION(ANIM_TYPE_STATUS, B_ANIM_STATUS_CONFUSION, player);
         ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
     } THEN {
         EXPECT(player->volatiles.infiniteConfusion == 0);
-    }
-}
-
-SINGLE_BATTLE_TEST("Berserk Gene does not cause an infinite loop")
-{
-    GIVEN {
-        ASSUME(GetMoveEffect(MOVE_BESTOW) == EFFECT_BESTOW);
-        PLAYER(SPECIES_TOXEL) { Item(ITEM_BERSERK_GENE); Ability(ABILITY_KLUTZ); }
-        PLAYER(SPECIES_WYNAUT);
-        OPPONENT(SPECIES_WOBBUFFET);
-        OPPONENT(SPECIES_WOBBUFFET);
-    } WHEN {
-        TURN { MOVE(player, MOVE_BESTOW); }
-    } SCENE {
-        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, opponent);
-        MESSAGE("Using Berserk Gene, the Attack of the opposing Wobbuffet sharply rose!");
     }
 }

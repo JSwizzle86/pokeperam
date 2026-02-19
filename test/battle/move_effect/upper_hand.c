@@ -127,7 +127,7 @@ AI_SINGLE_BATTLE_TEST("AI won't use Upper Hand unless it has seen a priority mov
     GIVEN {
         AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
         ASSUME(GetMovePriority(MOVE_QUICK_ATTACK) == 1);
-        PLAYER(SPECIES_WOBBUFFET) {Moves(move); }
+        PLAYER(SPECIES_WOBBUFFET) { Moves(move); }
         OPPONENT(SPECIES_WOBBUFFET) { Moves(MOVE_UPPER_HAND, MOVE_KARATE_CHOP); }
     } WHEN {
         TURN { MOVE(player, move); EXPECT_MOVE(opponent, MOVE_KARATE_CHOP); }
@@ -154,5 +154,22 @@ DOUBLE_BATTLE_TEST("Upper Hand fails if the target has attempted to act even if 
         NOT ANIMATION(ANIM_TYPE_MOVE, MOVE_EXTREME_SPEED, opponentLeft);
         ANIMATION(ANIM_TYPE_MOVE, MOVE_INSTRUCT, playerRight);
         NOT ANIMATION(ANIM_TYPE_MOVE, MOVE_UPPER_HAND, playerLeft);
+    }
+}
+
+SINGLE_BATTLE_TEST("Upper Hand failing will prevent Protean activation")
+{
+    GIVEN {
+        WITH_CONFIG(CONFIG_PROTEAN_LIBERO, GEN_6);
+        PLAYER(SPECIES_REGIROCK);
+        OPPONENT(SPECIES_KECLEON) { Ability(ABILITY_PROTEAN); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_UPPER_HAND); }
+    } SCENE {
+        NONE_OF {
+            ABILITY_POPUP(opponent, ABILITY_PROTEAN);
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_UPPER_HAND, player);
+        }
     }
 }
