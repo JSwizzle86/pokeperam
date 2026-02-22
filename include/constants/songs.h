@@ -546,6 +546,7 @@
 #define PH_NURSE_HELD               608
 #define PH_NURSE_SOLO               609
 #define MUS_P_ENCOUNTER_INTENSE     610   // Beginning of Peram songs.
+#define MUS_P_ELWOOD                611
 
 #define MUS_ROUTE118                0x7FFF  // Map is split into 2 music sections. controlled by GetCurrLocationDefaultMusic().
 
