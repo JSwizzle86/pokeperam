@@ -80,7 +80,7 @@ voice_group peram1
     voice_directsound 60, 0, DirectSoundWaveData_sd90_classical_whistle, 255, 0, 255, 127                       @ 78 whistle
     voice_square_2_alt 60, 0, 3, 0, 2, 4, 0                                                                     @ 79 PSG square_2_alt (mus_route101)
     voice_square_1 60, 0, 0, 2, 0, 0, 15, 0
-    voice_square_1 60, 0, 0, 2, 0, 0, 15, 0
+    voice_square_1_alt 60, 0, 0, 0, 0, 2, 7, 3                                                                  @ 81 PSG square_1_alt (mus_rg_vs_trainer [edited])
     voice_programmable_wave_alt 60, 0, ProgrammableWaveData_1, 0, 7, 7, 0                                       @ 82 PSG wave (mus_contest_results)
     voice_square_2_alt 60, 0, 0, 0, 1, 4, 1                                                                     @ 83 PSG square_2_alt (mus_encounter_intense)
     voice_programmable_wave_alt 60, 0, ProgrammableWaveData_1, 0, 7, 15, 1                                      @ 84 PSG wave (mus_route101)
@@ -90,7 +90,7 @@ voice_group peram1
     voice_square_2 60, 0, 2, 0, 1, 1, 1                                                                         @ 88 PSG square_2 (mus_vs_wild)
 	voice_square_1 60, 0, 0, 2, 0, 1, 1, 1                                                                      @ 89 PSG square_1 (mus_vs_wild)
     voice_square_2_alt 60, 0, 2, 1, 4, 4, 2                                                                     @ 90 PSG square_2_alt (mus_littleroot)
-    voice_square_1 60, 0, 0, 2, 0, 0, 15, 0
+    voice_square_2_alt 60, 0, 0, 0, 2, 7, 3                                                                     @ 91 PSG square_2_alt (mus_rg_vs_trainer [edited])
     voice_square_1 60, 0, 0, 2, 0, 0, 15, 0
     voice_square_1 60, 0, 0, 2, 0, 0, 15, 0
     voice_square_1 60, 0, 0, 2, 0, 0, 15, 0
