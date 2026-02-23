@@ -6464,10 +6464,14 @@ static void Task_PokemonSummaryAnimateAfterDelay(u8 taskId)
 
 void BattleAnimateFrontSprite(struct Sprite *sprite, u16 species, bool8 noCry, u8 panMode)
 {
+    #if P_TWO_FRAME_FRONT_SPRITES
     if (gHitMarker & HITMARKER_NO_ANIMATIONS && !(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK)))
         DoMonFrontSpriteAnimation(sprite, species, noCry, panMode | SKIP_FRONT_ANIM);
     else
         DoMonFrontSpriteAnimation(sprite, species, noCry, panMode);
+    #else
+    DoMonFrontSpriteAnimation(sprite, species, noCry, panMode);
+    #endif
 }
 
 void DoMonFrontSpriteAnimation(struct Sprite *sprite, u16 species, bool8 noCry, u8 panModeAnimFlag)
@@ -6519,6 +6523,7 @@ void DoMonFrontSpriteAnimation(struct Sprite *sprite, u16 species, bool8 noCry, 
 
 void PokemonSummaryDoMonAnimation(struct Sprite *sprite, u16 species, bool8 oneFrame)
 {
+    #if P_TWO_FRAME_FRONT_SPRITES
     if (!oneFrame && HasTwoFramesAnimation(species))
         StartSpriteAnim(sprite, 1);
     if (gSpeciesInfo[species].frontAnimDelay != 0)
@@ -6536,6 +6541,9 @@ void PokemonSummaryDoMonAnimation(struct Sprite *sprite, u16 species, bool8 oneF
         // No delay, start animation
         StartMonSummaryAnimation(sprite, gSpeciesInfo[species].frontAnimId);
     }
+    #else
+    sprite->callback = SpriteCallbackDummy;
+    #endif
 }
 
 void StopPokemonAnimationDelayTask(void)
@@ -6547,6 +6555,7 @@ void StopPokemonAnimationDelayTask(void)
 
 void BattleAnimateBackSprite(struct Sprite *sprite, u16 species)
 {
+    #if P_TWO_FRAME_FRONT_SPRITES
     if (gHitMarker & HITMARKER_NO_ANIMATIONS && !(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK)))
     {
         sprite->callback = SpriteCallbackDummy;
@@ -6556,6 +6565,9 @@ void BattleAnimateBackSprite(struct Sprite *sprite, u16 species)
         LaunchAnimationTaskForBackSprite(sprite, GetSpeciesBackAnimSet(species));
         sprite->callback = SpriteCallbackDummy_2;
     }
+    #else
+    sprite->callback = SpriteCallbackDummy;
+    #endif
 }
 
 // Identical to GetOpposingLinkMultiBattlerId but for the player
