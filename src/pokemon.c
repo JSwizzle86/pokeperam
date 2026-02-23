@@ -6470,7 +6470,7 @@ void BattleAnimateFrontSprite(struct Sprite *sprite, u16 species, bool8 noCry, u
     else
         DoMonFrontSpriteAnimation(sprite, species, noCry, panMode);
     #else
-    DoMonFrontSpriteAnimation(sprite, species, noCry, panMode);
+    DoMonFrontSpriteAnimation(sprite, species, noCry, panMode | SKIP_FRONT_ANIM);
     #endif
 }
 
