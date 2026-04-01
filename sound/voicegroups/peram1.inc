@@ -16,7 +16,7 @@ voice_group peram1
     voice_directsound 60, 0, DirectSoundWaveData_sc88pro_tubular_bell, 255, 165, 90, 216                        @ 14 bell
     voice_square_1 60, 0, 0, 2, 0, 0, 15, 0
     voice_square_1 60, 0, 0, 2, 0, 0, 15, 0
-    voice_directsound 60, 0, DirectSoundWaveData_sc88pro_organ2, 255, 0, 255, 210                               @ 17 percussive organ
+    voice_directsound 60, 0, DirectSoundWaveData_sc88pro_organ2, 255, 0, 255, 127                               @ 17 percussive organ
     voice_directsound 60, 0, DirectSoundWaveData_sc88pro_organ2, 37, 165, 180, 127                              @ 18 percussive organ (soft)
     voice_directsound 60, 0, DirectSoundWaveData_sc88pro_church_organ3_low, 255, 76, 154, 188                   @ 19 church organ low
 	voice_directsound 60, 0, DirectSoundWaveData_sc88pro_church_organ3_high, 255, 76, 154, 188                  @ 20 church organ high
